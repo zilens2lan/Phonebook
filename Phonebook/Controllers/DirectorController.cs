@@ -15,7 +15,7 @@ namespace Phonebook.Controllers
         public DirectorController(DirectorsDBContext context) => _context = context;
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Director>>> Get() 
+        public async Task<IEnumerable<Director>> Get() 
             => await _context.Directors.ToListAsync();
 
         [HttpGet("{id}")]
