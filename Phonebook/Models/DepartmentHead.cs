@@ -1,9 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Phonebook.Models
 {
     public class DepartmentHead
     {
+        [Key]
         public int Id { get; set; }
         [Required]
         public string FirstName { get; set; }
@@ -11,7 +13,6 @@ namespace Phonebook.Models
         public string LastName { get; set; }
         [Required]
         public string Phone { get; set; }
-        public List<Worker> Workers { get; set; }
         public Director Director { get; set; }
     }
 }

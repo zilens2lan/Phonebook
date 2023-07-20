@@ -1,9 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Phonebook.Models
 {
     public class Director
     {
+        [Key]
         public int Id { get; set; }
         [Required]
         public string FirstName { get; set; }
@@ -11,6 +14,5 @@ namespace Phonebook.Models
         public string LastName { get; set; }
         [Required]
         public string Phone { get; set; }
-        public List<DepartmentHead> DepartmentsHeads { get; set; }
     }
 }

@@ -13,5 +13,9 @@ namespace Phonebook.Data
 
         public DbSet<Director> Directors { get; set; }
 
+        public DbSet<DepartmentHead> DepartmentHeads { get; set; }
+
+        public DbSet<Worker> Workers { get; set; }
+
     }
 }
