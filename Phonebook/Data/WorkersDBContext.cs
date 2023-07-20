@@ -3,15 +3,13 @@ using Phonebook.Models;
 
 namespace Phonebook.Data
 {
-    public class DirectorsDBContext : DbContext
+    public class WorkersDBContext : DbContext
     {
-        public DirectorsDBContext(DbContextOptions<DirectorsDBContext> option)
+        public WorkersDBContext(DbContextOptions<WorkersDBContext> option)
             : base(option)
         {
             Database.EnsureCreated();
         }
-
-        public DbSet<Director> Directors { get; set; }
-
+        public DbSet<Worker> Workers { get; set; }
     }
 }
