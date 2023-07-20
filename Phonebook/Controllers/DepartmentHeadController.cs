@@ -9,9 +9,9 @@ namespace Phonebook.Controllers
     [Route("api/[controller]")]
     public class DepartmentHeadController : ControllerBase
     {
-        private readonly DepartmentHeadsDBContext _context;
+        private readonly DirectorsDBContext _context;
 
-        public DepartmentHeadController(DepartmentHeadsDBContext context) => _context = context;
+        public DepartmentHeadController(DirectorsDBContext context) => _context = context;
 
         [HttpGet]
         public async Task<IEnumerable<DepartmentHead>> Get()

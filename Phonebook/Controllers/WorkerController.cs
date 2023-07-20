@@ -9,9 +9,9 @@ namespace Phonebook.Controllers
     [Route("api/[controller]")]
     public class WorkerController : ControllerBase
     {
-        private readonly WorkersDBContext _context;
+        private readonly DirectorsDBContext _context;
 
-        public WorkerController(WorkersDBContext context) => _context = context;
+        public WorkerController(DirectorsDBContext context) => _context = context;
 
         [HttpGet]
         public async Task<IEnumerable<Worker>> Get() 
@@ -57,7 +57,7 @@ namespace Phonebook.Controllers
             if(workerToDelete == null) return NotFound();
 
             _context.Workers.Remove(workerToDelete);
-            await _context.SaveChangesAsync();  
+            await _context.SaveChangesAsync();
             return NoContent();
         }
     }
