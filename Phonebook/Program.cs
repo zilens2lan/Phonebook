@@ -11,7 +11,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<DirectorsDBContext>(
-    options => options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
+    options => options.UseSqlServer(connectionString: builder.Configuration.GetConnectionString("SqlServer")));
+builder.Services.AddDbContext<DepartmentHeadsDBContext>(
+    options => options.UseSqlServer(connectionString: builder.Configuration.GetConnectionString("SqlServer")));
+builder.Services.AddDbContext<WorkersDBContext>(
+    options => options.UseSqlServer(connectionString: builder.Configuration.GetConnectionString("SqlServer")));
 
 var app = builder.Build();
 
