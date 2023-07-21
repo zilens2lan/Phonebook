@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Phonebook.Data;
+using Phonebook.Domain.Services;
 using Phonebook.Models;
 
 namespace Phonebook.Controllers
@@ -9,29 +10,27 @@ namespace Phonebook.Controllers
     [Route("api/[controller]")]
     public class WorkerController : ControllerBase
     {
-        private readonly DirectorsDBContext _context;
+        private readonly IWorkerService _workerService;
 
-        public WorkerController(DirectorsDBContext context) => _context = context;
+        public WorkerController(IWorkerService workerService) => _workerService = workerService ?? throw new ArgumentNullException(nameof(_workerService));
 
         [HttpGet]
         public async Task<IEnumerable<Worker>> Get() 
-            => await _context.Workers.ToListAsync();
+            => await _workerService.Get();
 
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(Worker), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetById(int id)
         {
-            var worker = await _context.Workers.FindAsync(id);
-            return worker == null ? NotFound() : Ok(worker);
+            return await _workerService.GetById(id) == null ? NotFound() : Ok(await _workerService.GetById(id));
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult> Create(Worker worker)
         {
-            await _context.Workers.AddAsync(worker);   
-            await _context.SaveChangesAsync();
+            await _workerService.Create(worker);
             return CreatedAtAction(nameof(GetById), new { id = worker.Id }, worker);
         }
 
@@ -42,8 +41,7 @@ namespace Phonebook.Controllers
         {
             if (id != worker.Id) return BadRequest();
             
-            _context.Entry(worker).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            await _workerService?.Update(worker);
 
             return NoContent();
         }
@@ -53,12 +51,14 @@ namespace Phonebook.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(int id)
         {
-            var workerToDelete = await _context.Workers.FindAsync(id);
-            if(workerToDelete == null) return NotFound();
 
-            _context.Workers.Remove(workerToDelete);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            if (id != null)
+            {
+                await _workerService.Delete(id);
+                return NoContent();
+            }
+
+            return NotFound();
         }
 
         [HttpGet("/departmentId={departmentId}")]
@@ -66,12 +66,7 @@ namespace Phonebook.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetByDepartmentId(int departmentId)
         {
-            string query = "SELECT * FROM Workers WHERE DepartmentId = {0}";
-            var workers = await _context.Workers
-                .FromSqlRaw(query, departmentId)
-                .AsNoTracking()
-                .ToListAsync();
-
+            var workers = await _workerService.GetByDepartmentId(departmentId);
             return workers == null ? NotFound() : Ok(workers);
         }
     }

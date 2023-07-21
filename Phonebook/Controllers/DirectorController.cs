@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Phonebook.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using Phonebook.Domain.Services;
 using Phonebook.Models;
+using Phonebook.Service;
 
 namespace Phonebook.Controllers
 {
@@ -10,29 +9,27 @@ namespace Phonebook.Controllers
     [Route("api/[controller]")]
     public class DirectorController : ControllerBase
     {
-        private readonly DirectorsDBContext _context;
+        private readonly IDirectorService _directorService;
 
-        public DirectorController(DirectorsDBContext context) => _context = context;
+        public DirectorController(IDirectorService directorService) => _directorService = directorService ?? throw new ArgumentNullException(nameof(_directorService));
 
         [HttpGet]
         public async Task<IEnumerable<Director>> Get() 
-            => await _context.Directors.ToListAsync();
+            => await _directorService.Get();
 
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(Director), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> GetById(int id)
+        public async Task<ActionResult<Director>> GetById(int id)
         {
-            var director = await _context.Directors.FindAsync(id);
-            return director == null ? NotFound() : Ok(director);
+            return await _directorService.GetById(id) == null ? NotFound() : Ok(await _directorService.GetById(id));
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult> Create(Director director)
         {
-            await _context.Directors.AddAsync(director);   
-            await _context.SaveChangesAsync();
+            await _directorService.Create(director);
             return CreatedAtAction(nameof(GetById), new { id = director.Id }, director);
         }
 
@@ -42,10 +39,7 @@ namespace Phonebook.Controllers
         public async Task<ActionResult> Update(int id, Director director)
         {
             if (id != director.Id) return BadRequest();
-            
-            _context.Entry(director).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
+            await _directorService.Update(id, director);
             return NoContent();
         }
 
@@ -54,12 +48,12 @@ namespace Phonebook.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(int id)
         {
-            var directorToDelete = await _context.Directors.FindAsync(id);
-            if(directorToDelete == null) return NotFound();
-
-            _context.Directors.Remove(directorToDelete);
-            await _context.SaveChangesAsync();  
-            return NoContent();
+            if (id != null)
+            {
+                await _directorService.Delete(id);
+                return NoContent();
+            }
+            return NotFound();
         }
     }
 }

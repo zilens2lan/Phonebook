@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Phonebook.Data;
+using Phonebook.Domain.Services;
 using Phonebook.Models;
+using Phonebook.Service;
 
 namespace Phonebook.Controllers
 {
@@ -9,29 +9,27 @@ namespace Phonebook.Controllers
     [Route("api/[controller]")]
     public class DepartmentController : ControllerBase
     {
-        private readonly DirectorsDBContext _context;
+        private readonly IDepartmentService _departmentService;
 
-        public DepartmentController(DirectorsDBContext context) => _context = context;
+        public DepartmentController(IDepartmentService departmentService) => _departmentService = departmentService ?? throw new ArgumentNullException(nameof(_departmentService));
 
         [HttpGet]
         public async Task<IEnumerable<Department>> Get()
-            => await _context.Departments.ToListAsync();
+            => await _departmentService.Get();
 
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(Department), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetById(int id)
         {
-            var department= await _context.Departments.FindAsync(id);
-            return department == null ? NotFound() : Ok(department);
+            return await _departmentService.GetById(id) == null ? NotFound() : Ok(await _departmentService.GetById(id));
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult> Create(Department department)
         {
-            await _context.Departments.AddAsync(department);
-            await _context.SaveChangesAsync();
+            await _departmentService.Create(department);
             return CreatedAtAction(nameof(GetById), new { id = department.Id }, department);
         }
 
@@ -42,8 +40,7 @@ namespace Phonebook.Controllers
         {
             if (id != department.Id) return BadRequest();
 
-            _context.Entry(department).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            await _departmentService.Update(department);
 
             return NoContent();
         }
@@ -53,12 +50,12 @@ namespace Phonebook.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(int id)
         {
-            var departmentToDelete = await _context.Departments.FindAsync(id);
-            if (departmentToDelete == null) return NotFound();
-
-            _context.Departments.Remove(departmentToDelete);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            if (id != null)
+            {
+                await _departmentService.Delete(id);
+                return NoContent();
+            }
+            return NotFound();
         }
 
         [HttpGet("/directorId={directorId}")]
@@ -66,13 +63,7 @@ namespace Phonebook.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetByDirectorId(int directorId)
         {
-            string query = "SELECT * FROM Departments WHERE DirectorId = {0}";
-            var departments = await _context.Departments
-                .FromSqlRaw(query, directorId)
-                .AsNoTracking()
-                .ToListAsync();
-            
-            return departments == null ? NotFound() : Ok(departments);
+            return await _departmentService.GetByDirectorId(directorId) == null ? NotFound() : Ok(await _departmentService.GetByDirectorId(directorId));
         }
     }
 }

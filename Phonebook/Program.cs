@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Phonebook.Data;
+using Phonebook.Domain.Services;
+using Phonebook.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IDirectorService, DirectorService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IWorkerService, WorkerService>();
 
 builder.Services.AddDbContext<DirectorsDBContext>(
     options => options.UseSqlServer(connectionString: builder.Configuration.GetConnectionString("SqlServer")));
