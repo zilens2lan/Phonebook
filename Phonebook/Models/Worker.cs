@@ -12,6 +12,6 @@ namespace Phonebook.Models
         public string LastName { get; set; }
         [Required]
         public string Phone { get; set; }
-        public DepartmentHead DepartmentHead { get; set; }
+        public int DepartmentId { get; set; }
     }
 }

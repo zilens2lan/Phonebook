@@ -60,5 +60,19 @@ namespace Phonebook.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
+
+        [HttpGet("/departmentId={departmentId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> GetByDepartmentId(int departmentId)
+        {
+            string query = "SELECT * FROM Workers WHERE DepartmentId = {0}";
+            var workers = await _context.Workers
+                .FromSqlRaw(query, departmentId)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return workers == null ? NotFound() : Ok(workers);
+        }
     }
 }
