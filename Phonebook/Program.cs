@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore;
 using Phonebook;
 
-//[assembly: log4net.Config.XmlConfigurator(Watch = true)]
 public class Program
 {
     public static void Main(string[] args)

@@ -1,11 +1,8 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Phonebook.Data;
 using Phonebook.Domain.Services;
 using Phonebook.Exceptions;
 using Phonebook.Models;
-using System.IO;
-using System.Linq;
 using System.Net;
 
 namespace Phonebook.Service

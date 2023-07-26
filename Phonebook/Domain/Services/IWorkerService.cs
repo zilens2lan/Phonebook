@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Phonebook.Models;
+﻿using Phonebook.Models;
 
 namespace Phonebook.Domain.Services
 {

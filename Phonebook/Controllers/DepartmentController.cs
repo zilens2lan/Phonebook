@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Phonebook.Domain.Services;
 using Phonebook.Models;
-using Phonebook.Service;
 
 namespace Phonebook.Controllers
 {

@@ -31,7 +31,6 @@ namespace Phonebook
                 options => options.UseSqlServer(connectionString));
 
             services.AddMvc();
-            //Logger.Debug("Application connected to SQLServer", connectionString);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
