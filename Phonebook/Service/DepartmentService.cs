@@ -1,11 +1,11 @@
-﻿
-
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Phonebook.Data;
 using Phonebook.Domain.Services;
 using Phonebook.Exceptions;
 using Phonebook.Models;
 using System.IO;
+using System.Linq;
 using System.Net;
 
 namespace Phonebook.Service
@@ -24,8 +24,6 @@ namespace Phonebook.Service
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest, "Department is null");
             }
-            //string query = "INSERT INTO VALEUES "
-            //await _context.Departments.ExecuteSqlRaw(query);
             await _context.Departments.AddAsync(department);
             await _context.SaveChangesAsync();
             return department;
@@ -42,25 +40,26 @@ namespace Phonebook.Service
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound, "Department is not found");
             }
-            string deleteQuery = "DELETE FROM Departments WHERE Id = {0}";
-            await _context.Departments.ExecuteSqlRaw(deleteQuery, id);
-
-            //var departmentToDelete = await _context.Departments.FindAsync(id);
-            //_context.Departments.Remove(departmentToDelete);
-            //await _context.SaveChangesAsync();
+            _context.Departments.Remove(department);
+            await _context.SaveChangesAsync();
             return true;
         }
 
         public async Task<IEnumerable<Department>> Get()
         {
-            return await _context.Departments.ToListAsync();
+            string selectQuery = "SELECT * FROM Departments";
+            var departments = await _context.Departments
+                .FromSqlRaw(selectQuery)
+                .AsNoTracking()
+                .ToListAsync();
+            return departments;
         }
 
         public async Task<IEnumerable<Department>> GetByDirectorId(int directorId)
         {
-            string query = "SELECT * FROM Departments WHERE DirectorId = {0}";
+            string selectQuery = "SELECT * FROM Departments WHERE DirectorId = {0}";
             var departments = await _context.Departments
-                .FromSqlRaw(query, directorId)
+                .FromSqlRaw(selectQuery, directorId)
                 .AsNoTracking()
                 .ToListAsync();
             if(departments.Count == 0) 
@@ -72,27 +71,32 @@ namespace Phonebook.Service
 
         public async Task<Department> GetById(int id)
         {
-            if (await _context.Departments.FindAsync(id) == null)
+            string selectQuery = "SELECT * FROM Departments WHERE id = {0}";
+            var department = await _context.Departments
+                .FromSqlRaw(selectQuery, id)
+                .AsNoTracking()
+                .FirstAsync();
+            if (department == null)
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound, "Department is not found");
             }
-            string query = "SELECT * FROM Departments WHERE id = {0}";
-            var departments = await _context.Departments
-                .FromSqlRaw(query, id)
-                .AsNoTracking()
-                .ToListAsync();
-            return departments[0];
+            return department;
         }
 
         public async Task<Department> Update(int id, Department department)
         {
-            if(id == 0)
+            string selectQuery = "SELECT * FROM Departments WHERE id = {0}";
+            var select = await _context.Departments
+                .FromSqlRaw(selectQuery, id)
+                .AsNoTracking()
+                .FirstAsync();
+            if (select == null)
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound, "Department is not found");
             }
             _context.Entry(department).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-            return await _context.Departments.FirstOrDefaultAsync();
+            return _context.Departments.FirstOrDefault(department);
         }
     }
 }

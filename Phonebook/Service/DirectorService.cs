@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Phonebook.Config;
+﻿using Microsoft.EntityFrameworkCore;
 using Phonebook.Data;
 using Phonebook.Domain.Services;
 using Phonebook.Exceptions;
@@ -16,16 +14,26 @@ namespace Phonebook.Service
 
         public async Task<IEnumerable<Director>> Get()
         {
-            return await _context.Directors.ToListAsync();
+            string selectQuery = "SELECT * FROM Directors";
+            var directors = await _context.Directors
+                .FromSqlRaw(selectQuery)
+                .AsNoTracking()
+                .ToListAsync();
+            return directors;
         }
 
         public async Task<Director> GetById(int id)
         {
-            if(id == 0)
+            string selectQuery = "SELECT * FROM Directors WHERE id = {0}";
+            var director = await _context.Directors
+                .FromSqlRaw(selectQuery, id)
+                .AsNoTracking()
+                .FirstAsync();
+            if (director == null)
             {
-                throw new HttpResponseException(HttpStatusCode.NotFound, "Director is not found");
+                throw new HttpResponseException(HttpStatusCode.NotFound, "Department is not found");
             }
-            return await _context.Directors.FindAsync(id);
+            return director;
         }
 
         public async Task<Director> Create(Director director)
@@ -41,24 +49,32 @@ namespace Phonebook.Service
 
         public async Task<Director> Update(int id, Director director)
         {
-            if(await _context.Directors.FindAsync(id) == null)
+            string selectQuery = "SELECT * FROM Directors WHERE id = {0}";
+            var select = await _context.Directors
+                .FromSqlRaw(selectQuery, id)
+                .AsNoTracking()
+                .FirstAsync();
+            if (select == null)
             {
-                Logger.Error("Director is not found", id);
                 throw new HttpResponseException(HttpStatusCode.NotFound, "Director is not found");
             }
             _context.Entry(director).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-            return _context.Directors.FirstOrDefault();
+            return _context.Directors.FirstOrDefault(director);
         }
 
         public async Task<bool> Delete(int id)
         {
-            var directorToDelete = await _context.Directors.FindAsync(id);
-            if(directorToDelete == null)
+            string selectQuery = "SELECT * FROM Director WHERE Id = {0}";
+            var director = await _context.Directors
+                .FromSqlRaw(selectQuery, id)
+                .AsNoTracking()
+                .FirstAsync();
+            if(director == null)
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound, "Director is not found");
             }
-            _context.Directors.Remove(directorToDelete);
+            _context.Directors.Remove(director);
             await _context.SaveChangesAsync();
             return true;
         }

@@ -28,26 +28,28 @@ namespace Phonebook.Service
 
         public async Task<bool> Delete(int id)
         {
-
-            string query = "SELECT * FROM Director WHERE Id = {0}";
-            var department = await _context.Departments
+            string query = "SELECT * FROM Workers WHERE Id = {0}";
+            var worker = await _context.Workers
                 .FromSqlRaw(query, id)
                 .AsNoTracking()
                 .FirstAsync();
-            if (department == null)
+            if (worker == null)
             {
-                throw new HttpResponseException(HttpStatusCode.NotFound, "Director is not found");
+                throw new HttpResponseException(HttpStatusCode.NotFound, "Worker is not found");
             }
-
-            var workerToDelete = await _context.Workers.FindAsync(id);
-            _context.Workers.Remove(workerToDelete);
+            _context.Workers.Remove(worker);
             await _context.SaveChangesAsync();
             return true;
         }
 
         public async Task<IEnumerable<Worker>> Get()
         {
-            return await _context.Workers.ToListAsync();
+            string selectQuery = "SELECT * FROM Workers";
+            var workers = await _context.Workers
+                .FromSqlRaw(selectQuery)
+                .AsNoTracking()
+                .ToListAsync();
+            return workers;
         }
 
         public async Task<IEnumerable<Worker>> GetByDepartmentId(int departmentId)
@@ -66,23 +68,32 @@ namespace Phonebook.Service
 
         public async Task<Worker> GetById(int id)
         {
-            if (await _context.Workers.FindAsync(id) == null)
+            string selectQuery = "SELECT * FROM Workers WHERE id = {0}";
+            var worker = await _context.Workers
+                .FromSqlRaw(selectQuery, id)
+                .AsNoTracking()
+                .FirstAsync();
+            if (worker == null)
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound, "Worker is not found");
             }
-            return await _context.Workers.FindAsync(id);
+            return worker;
         }
 
         public async Task<Worker> Update(int id, Worker worker)
         {
-
-            if (await _context.Workers.FindAsync(id) == null)
+            string selectQuery = "SELECT * FROM Workers WHERE id = {0}";
+            var select = await _context.Workers
+                .FromSqlRaw(selectQuery, id)
+                .AsNoTracking()
+                .FirstAsync();
+            if (select == null)
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound, "Worker is not found");
             }
             _context.Entry(worker).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-            return _context.Workers.FirstOrDefault();
+            return _context.Workers.FirstOrDefault(worker);
         }
     }
 }

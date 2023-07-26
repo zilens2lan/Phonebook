@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Phonebook.Config;
 using Phonebook.Data;
 using Phonebook.Domain.Services;
-using Phonebook.Exceptions;
 using Phonebook.Service;
 
 namespace Phonebook
@@ -33,7 +31,7 @@ namespace Phonebook
                 options => options.UseSqlServer(connectionString));
 
             services.AddMvc();
-            Logger.Debug("Application connected to SQLServer", connectionString);
+            //Logger.Debug("Application connected to SQLServer", connectionString);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
