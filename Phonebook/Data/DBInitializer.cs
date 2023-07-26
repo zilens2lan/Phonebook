@@ -1,5 +1,4 @@
 ﻿using Phonebook.Models;
-using System.Diagnostics;
 
 namespace Phonebook.Data
 {

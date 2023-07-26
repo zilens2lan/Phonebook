@@ -14,46 +14,85 @@ namespace Phonebook.Controllers
         public DirectorController(IDirectorService directorService) => _directorService = directorService ?? throw new ArgumentNullException(nameof(_directorService));
 
         [HttpGet]
-        public async Task<IEnumerable<Director>> Get() 
-            => await _directorService.Get();
+        public async Task<ActionResult> Get()
+        {
+            try
+            {
+                return Ok(await _directorService.Get());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(Director), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Director>> GetById(int id)
         {
-            return await _directorService.GetById(id) == null ? NotFound() : Ok(await _directorService.GetById(id));
+            try
+            {
+                return Ok(await _directorService.GetById(id));
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult> Create(Director director)
         {
-            await _directorService.Create(director);
-            return CreatedAtAction(nameof(GetById), new { id = director.Id }, director);
+            try
+            {
+                return Ok(await _directorService.Create(director));
+            }
+            catch (ArgumentNullException ex)
+            {
+                return NotFound(ex);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         [HttpPut]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Update(int id, Director director)
         {
-            if (id != director.Id) return BadRequest();
-            await _directorService.Update(id, director);
-            return NoContent();
+            try
+            {
+                return Ok(await _directorService.Update(id, director));
+            }
+            catch (ArgumentNullException ex)
+            {
+                return NotFound(ex);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(int id)
         {
-            if (id != null)
+            try
             {
                 await _directorService.Delete(id);
-                return NoContent();
+                return new NoContentResult();
             }
-            return NotFound();
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
     }
 }

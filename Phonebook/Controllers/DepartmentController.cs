@@ -14,56 +14,99 @@ namespace Phonebook.Controllers
         public DepartmentController(IDepartmentService departmentService) => _departmentService = departmentService ?? throw new ArgumentNullException(nameof(_departmentService));
 
         [HttpGet]
-        public async Task<IEnumerable<Department>> Get()
-            => await _departmentService.Get();
+        public async Task<ActionResult> Get()
+        {
+            try
+            {
+                return Ok(await _departmentService.Get());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(Department), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetById(int id)
         {
-            return await _departmentService.GetById(id) == null ? NotFound() : Ok(await _departmentService.GetById(id));
+            try
+            {
+                return Ok(await _departmentService.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult> Create(Department department)
         {
-            await _departmentService.Create(department);
-            return CreatedAtAction(nameof(GetById), new { id = department.Id }, department);
+            try
+            {
+                await _departmentService.Create(department);
+                return Ok(department);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return NotFound(ex);
+            }
+            catch(Exception ex) 
+            {
+                return BadRequest(ex);
+            }
         }
 
         [HttpPut]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Update(int id, Department department)
         {
-            if (id != department.Id) return BadRequest();
-
-            await _departmentService.Update(department);
-
-            return NoContent();
+            try
+            {
+                return Ok(await _departmentService.Update(id, department));
+            }
+            catch (ArgumentNullException ex)
+            {
+                return NotFound(ex);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(int id)
         {
-            if (id != null)
+            try
             {
                 await _departmentService.Delete(id);
-                return NoContent();
+                return new NoContentResult();
             }
-            return NotFound();
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         [HttpGet("/directorId={directorId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetByDirectorId(int directorId)
         {
-            return await _departmentService.GetByDirectorId(directorId) == null ? NotFound() : Ok(await _departmentService.GetByDirectorId(directorId));
+            try
+            {
+                return Ok(await _departmentService.GetByDirectorId(directorId));
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
     }
 }

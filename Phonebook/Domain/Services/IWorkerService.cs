@@ -8,8 +8,8 @@ namespace Phonebook.Domain.Services
         Task<IEnumerable<Worker>> Get();
         Task<Worker> GetById(int id);
         Task<Worker> Create(Worker worker);
-        Task<Worker> Update(Worker worker);
-        Task<Worker> Delete(int id);
+        Task<Worker> Update(int id, Worker worker);
+        Task<bool> Delete(int id);
         Task<IEnumerable<Worker>> GetByDepartmentId(int departmentId);
     }
 }

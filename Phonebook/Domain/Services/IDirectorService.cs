@@ -9,6 +9,6 @@ namespace Phonebook.Domain.Services
         Task<Director> GetById(int id);
         Task<Director> Create(Director director);
         Task<Director> Update(int id, Director director);
-        Task<Director> Delete(int id);
+        Task<bool> Delete(int id);
     }
 }
